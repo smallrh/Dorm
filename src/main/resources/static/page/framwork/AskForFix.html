@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍维修登记</title>
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <h2>宿舍维修登记</h2>
+
+            <!-- 维修登记表单 -->
+            <form class="layui-form" id="repairForm">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">维修原因</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fReason" required lay-verify="required" placeholder="请输入维修原因"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="fTel" required lay-verify="required|phone" placeholder="请输入联系电话"
+                               class="layui-input">
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea name="fNote" placeholder="请输入备注" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="repairSubmit">提交申请</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'jquery', 'miniTab'], function () {
+        var $ = layui.jquery,
+            form = layui.form
+        miniTab = layui.miniTab;
+
+        // 获取localStorage中的房间号和学号
+        var rNo = localStorage.getItem('rNo');
+        var sNo = localStorage.getItem('sNo');
+
+        // 监听表单提交
+        form.on('submit(repairSubmit)', function (data) {
+            var repairData = data.field;
+
+            // 将房间号和学号加到请求数据中
+            repairData.fRno = rNo;
+            repairData.fSno = sNo;
+
+            // 提交维修申请
+            $.ajax({
+                url: '/api/repair',  // 假设提交维修申请的接口
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(repairData),
+                success: function (response) {
+                    if (response.code === 200) {
+                        layer.msg('维修申请提交成功');
+                        setTimeout(function () {
+                            miniTab.deleteCurrentByIframe();
+                        }, 1000); // 2000 毫秒（2秒）后关闭当前页面
+                    } else {
+                        layer.msg('提交失败，请稍后重试');
+                    }
+                },
+                error: function () {
+                    layer.msg('请求失败，请稍后重试');
+                }
+            });
+
+            return false; // 阻止表单默认提交行为
+        });
+    });
+</script>
+
+</body>
+</html>

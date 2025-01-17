@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>宿舍维修记录</title>
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <h2>宿舍维修记录</h2>
+
+            <!-- 显示学生信息 -->
+            <div id="studentInfo" class="layui-card">
+                <div class="layui-card-header">学生信息</div>
+                <div class="layui-card-body">
+                    <p><strong>姓名：</strong><span id="sName"></span></p>
+                    <p><strong>学号：</strong><span id="sNo"></span></p>
+                    <p><strong>房间号：</strong><span id="rNo"></span></p>
+                </div>
+            </div>
+
+            <!-- 维修记录表格 -->
+            <table id="repairTable" lay-filter="repairTable"></table>
+        </div>
+    </div>
+</div>
+
+<script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table', 'jquery'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+        // 获取localStorage中的房间号、学号和学生姓名
+        var rNo = localStorage.getItem('rNo');
+        var sNo = localStorage.getItem('sNo');
+        var sName = localStorage.getItem('sName');
+
+        // 显示学生信息
+        $('#sName').text(sName);
+        $('#sNo').text(sNo);
+        $('#rNo').text(rNo);
+
+        // 渲染维修记录表格
+        function loadRepairData(r_no) {
+            $.ajax({
+                url: '/api/myfix',  // 假设根据房间号获取维修记录的接口
+                method: 'GET',
+                data: {
+                    f_rno: r_no  // 根据房间号查询维修记录
+                },
+                success: function (response) {
+                    console.log(response); // 打印返回的数据
+
+                    // 检查返回的数据结构
+                    if (response.code === 200 && response.data.length > 0) {
+                        table.render({
+                            elem: '#repairTable',
+                            data: response.data,  // 直接使用返回的数据渲染
+                            cols: [[
+                                {type: 'numbers', title: '序号', width: 80},
+                                {
+                                    field: 'fstart', title: '申请时间', width: 180, templet: function (d) {
+                                        return new Date(d.fstart).toLocaleString();
+                                    }
+                                },
+                                {field: 'freason', title: '维修原因', width: 200},
+                                {field: 'ftel', title: '联系电话', width: 150},
+                                {field: 'fnote', title: '备注', width: 200},
+                                {
+                                    field: 'fend', title: '完成时间', width: 180, templet: function (d) {
+                                        return new Date(d.fend).toLocaleString();
+                                    }
+                                },
+                            ]],
+                            page: true,
+                            skin: 'line',
+                            limit: 10,
+                            limits: [10, 20, 30],
+                        });
+                    } else {
+                        layer.msg('没有找到维修记录');
+                    }
+                },
+                error: function () {
+                    layer.msg('请求失败，请稍后重试');
+                }
+            });
+        }
+
+        // 加载维修记录数据
+        loadRepairData(rNo);
+    });
+</script>
+
+</body>
+</html>

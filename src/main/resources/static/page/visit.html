@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>来访登记</title>
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+    <link rel="stylesheet" href="../css/public.css" media="all">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <h2>来访登记</h2>
+
+            <!-- 来访登记表单 -->
+            <form class="layui-form" action="" lay-filter="visitorForm" id="visitorForm">
+
+                <!-- 学号 (隐藏) -->
+                <input type="hidden" id="s_no" name="s_no">
+
+                <!-- 来访人姓名 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">来访人姓名</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="visitorName" name="visitorName" required lay-verify="required"
+                               placeholder="请输入来访人姓名" class="layui-input">
+                    </div>
+                </div>
+
+                <!-- 来访人身份证 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">来访人身份证</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="visitorId" name="visitorId" required lay-verify="required"
+                               placeholder="请输入来访人身份证" class="layui-input">
+                    </div>
+                </div>
+
+                <!-- 来访时间 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">来访时间</label>
+                    <div class="layui-input-block">
+                        <input type="date" id="visitStart" name="visitStart" required lay-verify="required"
+                               placeholder="请选择来访开始时间" class="layui-input">
+                    </div>
+                </div>
+
+                <!-- 来访结束时间 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">来访结束时间</label>
+                    <div class="layui-input-block">
+                        <input type="date" id="visitEnd" name="visitEnd" required lay-verify="required"
+                               placeholder="请选择来访结束时间" class="layui-input">
+                    </div>
+                </div>
+
+                <!-- 来访原因 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">来访原因</label>
+                    <div class="layui-input-block">
+                        <textarea id="visitReason" name="visitReason" required lay-verify="required"
+                                  placeholder="请输入来访原因" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <!-- 来访者联系电话 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="visitorPhone" name="visitorPhone" required lay-verify="required"
+                               placeholder="请输入来访者联系电话" class="layui-input">
+                    </div>
+                </div>
+
+                <!-- 学生宿舍号 -->
+                <div class="layui-form-item">
+                    <label class="layui-form-label">宿舍号</label>
+                    <div class="layui-input-block">
+                        <input type="text" id="roomNo" name="roomNo" readonly class="layui-input"
+                               placeholder="系统自动填写宿舍号">
+                    </div>
+                </div>
+
+                <!-- 提交按钮 -->
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn layui-btn-normal" lay-submit lay-filter="submitVisitorForm">提交登记
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<script src="../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'jquery', 'miniTab'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            miniTab = layui.miniTab;
+
+        // 获取localStorage中的学号
+        var sNo = localStorage.getItem('sNo');
+        var roomNo = localStorage.getItem('rNo');  // 假设在localStorage中有该信息
+
+        // 设置学号和房间号字段的值
+        $('#s_no').val(sNo);
+        $('#roomNo').val(roomNo);
+
+        // 提交表单
+        form.on('submit(submitVisitorForm)', function (data) {
+            // 提交来访登记数据
+            $.ajax({
+                url: '/api/visitor/add',
+                method: 'POST',
+                contentType: 'application/json',  // 确保 Content-Type 设置为 application/json
+                data: JSON.stringify(data.field), // 确保数据是JSON格式
+                success: function (response) {
+                    layer.msg(response.msg, {icon: 6});  // 显示成功提示
+
+                    // 延迟关闭当前页面，避免闪烁
+                    setTimeout(function () {
+                        // 如果你使用的是miniTab的标签页管理，关闭当前标签页
+                        miniTab.deleteCurrentByIframe();
+
+                        // 如果你只是想关闭当前页面（非标签页），可以用下面的代码
+                        // window.close();
+                    }, 1000);  // 1秒后关闭页面
+                },
+                error: function () {
+                    layer.msg('请求失败，请稍后重试', {icon: 5});
+                }
+            });
+            return false;  // 防止表单默认提交
+        });
+    });
+</script>
+
+</body>
+</html>

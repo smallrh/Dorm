@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>违纪处罚记录</title>
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md12">
+            <h2>违纪记录</h2>
+            <table id="disciplineTable" lay-filter="disciplineTable"></table>
+        </div>
+    </div>
+
+    <!-- 违纪记录表单 -->
+    <div class="layui-row" id="disciplineForm" style="display:none;">
+        <div class="layui-col-md6 layui-col-md-offset3">
+            <form class="layui-form" id="disciplineRecordForm">
+                <input type="hidden" name="s_no" id="s_no" value=""> <!-- 隐藏学号字段 -->
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">违纪时间</label>
+                    <div class="layui-input-block">
+                        <input type="date" name="d_time" required lay-verify="required" placeholder="请输入违纪时间"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">违纪原因</label>
+                    <div class="layui-input-block">
+                        <textarea name="d_reason" required lay-verify="required" placeholder="请输入违纪原因"
+                                  class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">处罚</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="d_panish" required lay-verify="required" placeholder="请输入处罚"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">处罚类型</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="d_panishType" required lay-verify="required"
+                               placeholder="请输入处罚类型" class="layui-input">
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'table', 'jquery'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            table = layui.table;
+
+        // 获取当前学生的学号
+        var sNo = localStorage.getItem('sNo'); // 假设sNo存储在localStorage中
+        $('#s_no').val(sNo); // 将学号赋值给表单中的隐藏字段
+
+        // 渲染违纪记录表格
+        table.render({
+            defaultToolbar: ['filter', 'exports', 'print', {
+                title: '提示',
+                layEvent: 'LAYTABLE_TIPS',
+                icon: 'layui-icon-tips'
+            }],
+            toolbar: '#toolbarDemo',
+            elem: '#disciplineTable',
+            url: '/api/MyDiscipline',  // 假设根据学号获取违纪记录的接口
+            method: 'post', // 修改为POST请求
+            contentType: 'application/json', // 设置请求体格式为JSON
+            cols: [[
+                {type: 'numbers', title: '序号', width: 80},
+                {
+                    field: 'dtime', title: '违纪时间', width: 180, templet: function (d) {
+                        return layui.util.toDateString(d.dtime, "yyyy-MM-dd");
+                    }
+                },
+                {field: 'dreason', title: '违纪原因'},
+                {field: 'dpanish', title: '处罚'},
+                {field: 'dpanishType', title: '处罚类型'}
+            ]],
+            page: true,
+            skin: 'line',
+            limit: 10,
+            limits: [10, 20, 30],
+            // 配置请求参数
+            request: {
+                pageName: 'page', // 请求参数名，页码
+                limitName: 'limit' // 请求参数名，每页条数
+            },
+            response: {
+                statusName: 'code', // 响应码字段
+                statusCode: 200, // 成功的状态码
+                dataName: 'data', // 数据列表的字段名
+                countName: 'count' // 数据总数的字段名
+            },
+            where: {
+                sNo: sNo // 将学号添加到请求参数
+            },
+            done: function (res, curr, count) {
+                // 可以在这里对返回的结果进行自定义处理
+            },
+            parseData: function (res) { // 解析返回的数据
+                return {
+                    "code": res.code, // 解析接口状态
+                    "msg": res.msg, // 解析提示文本
+                    "count": res.count, // 解析数据长度
+                    "data": res.data // 解析数据列表
+                };
+            },
+            headers: {
+                'Content-Type': 'application/json' // 设置请求头
+            },
+            data: function (params) {
+                // 将请求参数转换为JSON格式
+                return JSON.stringify({
+                    sNo: sNo,
+                    page: params.page,
+                    limit: params.limit
+                });
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

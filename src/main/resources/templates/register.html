@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <title>后台管理-注册</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <link rel="stylesheet" href="../lib/layui-v2.6.3/css/layui.css" media="all">
+    <style>
+        body {
+            background: url(../images/loginbg.png) 0% 0% / cover no-repeat;
+            font-size: 14px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .login-main {
+            width: 420px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0px 2px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-top {
+            height: 100px;
+            background-color: #148be4;
+            border-radius: 12px 12px 0 0;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .login-bottom {
+            padding: 40px;
+        }
+
+        .item {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .item input,
+        .item select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .item input:focus,
+        .item select:focus {
+            border-color: #1E9FFF;
+            outline: none;
+        }
+
+        .item .icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        .login-btn {
+            width: 100%;
+            background-color: #1E9FFF;
+            border-radius: 6px;
+            padding: 12px;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .login-btn:hover {
+            background-color: #148be4;
+        }
+
+        .footer {
+            text-align: center;
+            font-size: 12px;
+            color: #999;
+            position: absolute;
+            bottom: 10px;
+            width: 100%;
+        }
+
+        .footer a {
+            color: #1E9FFF;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .item label {
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="login-main">
+    <div class="login-top">
+        <span>后台注册</span>
+    </div>
+    <form class="layui-form login-bottom">
+        <div class="center">
+            <div class="item">
+                <input type="text" name="name" lay-verify="required" placeholder="请输入姓名" maxlength="20">
+            </div>
+            <div class="item">
+                <input type="text" name="username" lay-verify="required" placeholder="请输入学号" maxlength="24"/>
+            </div>
+            <div class="item">
+                <input type="password" name="password" lay-verify="required" placeholder="请输入密码" maxlength="20">
+            </div>
+            <div class="item">
+                <select name="s_sex" lay-verify="required">
+                    <option value="">请选择性别</option>
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                </select>
+            </div>
+            <div class="item">
+                <select name="d_no" id="deptSelect" lay-verify="required" lay-filter="deptSelect">
+                    <option value="">请选择系别</option>
+                </select>
+            </div>
+            <div class="item">
+                <select name="m_no" id="majorSelect" lay-verify="required" lay-filter="majorSelect">
+                    <option value="">请选择专业</option>
+                </select>
+            </div>
+            <div class="item">
+                <select name="c_no" id="classSelect" lay-verify="required">
+                    <option value="">请选择班级</option>
+                </select>
+            </div>
+            <div class="item">
+                <input type="text" name="s_id" lay-verify="required" placeholder="请输入身份证号" maxlength="18">
+            </div>
+            <div class="item">
+                <input type="text" name="s_grade" lay-verify="required" placeholder="请输入入学年号" maxlength="18">
+            </div>
+            <div class="item" style="width: 137px;">
+                <input type="text" name="captcha" placeholder="请输入验证码" maxlength="4">
+                <img id="refreshCaptcha" class="validateImg" src="../images/captcha.jpg" alt="captcha">
+            </div>
+        </div>
+        <div class="layui-form-item" style="text-align:center;">
+            <button class="login-btn" lay-submit="" lay-filter="register">注册</button>
+        </div>
+        <p class="layui-text" style="text-align:center;">已有账号？<a href="/login">立即登录</a></p>
+    </form>
+</div>
+<div class="footer">
+    ©版权所有 xxxx-xxxx xxxx工作室<span class="padding-5">|</span><a target="_blank" href="http://www.miitbeian.gov.cn">备案:xxxxxxxxxx</a>
+</div>
+
+<script src="../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script>
+    layui.use(['form', 'jquery'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            layer = layui.layer;
+
+        // 加载系别
+        loadDept();
+
+        // 系别选择事件
+        form.on('select(deptSelect)', function (data) {
+            console.log('系别改变:', data.value);
+            loadMajors(data.value); // 根据系别加载专业
+        });
+
+        // 专业选择事件
+        form.on('select(majorSelect)', function (data) {
+            console.log('专业选择改变:', data.value);
+            loadClasses(data.value); // 根据专业加载班级
+        });
+
+        // 加载系别列表
+        function loadDept() {
+            $.ajax({
+                url: '/api/depts', // 系别接口
+                type: 'GET',
+                success: function (response) {
+                    if (response.success) {
+                        var deptSelect = $('#deptSelect');
+                        deptSelect.empty();
+                        deptSelect.append('<option value="">请选择系别</option>');
+                        response.data.forEach(function (dept) {
+                            deptSelect.append('<option value="' + dept.dno + '">' + dept.dname + '</option>');
+                        });
+                        form.render('select');
+                    } else {
+                        layer.msg('加载系别列表失败：' + response.message, {icon: 2});
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    layer.msg('请求失败，请稍后重试', {icon: 2});
+                }
+            });
+        }
+
+        // 根据系别选择加载专业列表
+        function loadMajors(dNo) {
+            if (dNo) {
+                $.ajax({
+                    url: '/api/majors', // 专业接口
+                    type: 'GET',
+                    data: {d_no: dNo}, // 传递系别编号
+                    success: function (response) {
+                        if (response.success) {
+                            var majorSelect = $('#majorSelect');
+                            majorSelect.empty();
+                            majorSelect.append('<option value="">请选择专业</option>');
+                            response.data.forEach(function (major) {
+                                majorSelect.append('<option value="' + major.mno + '">' + major.mname + '</option>');
+                            });
+                            form.render('select');
+                        } else {
+                            layer.msg('加载专业列表失败：' + response.message, {icon: 2});
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        layer.msg('请求失败，请稍后重试', {icon: 2});
+                    }
+                });
+            } else {
+                $('#majorSelect').empty().append('<option value="">请选择专业</option>');
+                $('#classSelect').empty().append('<option value="">请选择班级</option>');
+                form.render('select');
+            }
+        }
+
+        // 根据选择的专业加载对应的班级列表
+        function loadClasses(mNo) {
+            if (mNo) {
+                $.ajax({
+                    url: '/api/classes', // 班级接口
+                    type: 'GET',
+                    data: {m_no: mNo}, // 传递专业编号
+                    success: function (response) {
+                        if (response.success) {
+                            var classSelect = $('#classSelect');
+                            classSelect.empty();
+                            classSelect.append('<option value="">请选择班级</option>');
+                            response.data.forEach(function (cls) {
+                                classSelect.append('<option value="' + cls.cno + '">' + cls.cname + '</option>');
+                            });
+                            form.render('select');
+                        } else {
+                            layer.msg('加载班级列表失败：' + response.message, {icon: 2});
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                        layer.msg('请求失败，请稍后重试', {icon: 2});
+                    }
+                });
+            } else {
+                $('#classSelect').empty().append('<option value="">请选择班级</option>');
+                form.render('select');
+            }
+        }
+
+        // 注册表单提交
+        form.on('submit(register)', function (data) {
+            var formData = data.field;
+            // 前端验证
+            if (!formData.name || !formData.username || !formData.password || !formData.captcha) {
+                layer.msg('所有字段都必须填写');
+                return false;
+            }
+
+            // 发送注册请求
+            $.ajax({
+                url: '/api/register',
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',  // 设置为 JSON 格式
+                success: function (response) {
+                    if (response.success) {
+                        layer.msg('注册成功', function () {
+                            window.location.href = '/login';
+                        }, {icon: 6});
+                    } else {
+                        layer.msg('注册失败：' + response.message, {icon: 2});
+                    }
+                },
+                error: function (error) {
+                    console.log(error);
+                    layer.msg('请求失败，请稍后重试', {icon: 2});
+                }
+            });
+
+            return false; // 阻止表单默认提交
+        });
+    });
+</script>
+</body>
+</html>

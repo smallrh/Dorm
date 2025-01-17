@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: dorm
+  datasource:
+    url: jdbc:mysql://localhost:3306/dorm?useSSL=false&serverTimezone=UTC
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.dorm.dorm.entity

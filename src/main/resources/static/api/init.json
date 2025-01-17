@@ -1,0 +1,127 @@
+{
+  "homeInfo": {
+    "title": "首页",
+    "href": "page/framwork/welcome.html"
+  },
+  "logoInfo": {
+    "title": "宿舍管理",
+    "image": "images/logo.png",
+    "href": ""
+  },
+  "menuInfo": [
+    {
+      "title": "常规管理",
+      "icon": "fa fa-address-book",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "我的宿舍",
+          "href": "page/framwork/myhouse.html",
+          "icon": "fa fa-window-maximize",
+          "target": "_self"
+        },
+        {
+          "title": "来访登记",
+          "href": "page/framwork/visit.html",
+          "icon": "fa fa-gears",
+          "target": "_self"
+        },
+        {
+          "title": "住宿申请",
+          "href": "page/framwork/Accommodation.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
+        {
+          "title": "违纪记录",
+          "href": "page/framwork/disciplineTable.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
+        {
+          "title": "水电费",
+          "href": "page/framwork/Utilitybills.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
+        {
+          "title": "宿舍维修记录",
+          "href": "page/framwork/fixTable.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        },
+        {
+          "title": "报修",
+          "href": "page/framwork/AskForFix.html",
+          "icon": "fa fa-file-text",
+          "target": "_self"
+        }
+      ]
+    },
+    {
+      "title": "宿管模块",
+      "icon": "fa fa-lemon-o",
+      "href": "",
+      "target": "_self",
+      "child": [
+        {
+          "title": "图标选择",
+          "href": "page/icon-picker.html",
+          "icon": "fa fa-adn",
+          "target": "_self"
+        },
+        {
+          "title": "颜色选择",
+          "href": "page/color-select.html",
+          "icon": "fa fa-dashboard",
+          "target": "_self"
+        },
+        {
+          "title": "下拉选择",
+          "href": "page/table-select.html",
+          "icon": "fa fa-angle-double-down",
+          "target": "_self"
+        },
+        {
+          "title": "文件上传",
+          "href": "page/upload.html",
+          "icon": "fa fa-arrow-up",
+          "target": "_self"
+        },
+        {
+          "title": "富文本编辑器",
+          "href": "page/editor.html",
+          "icon": "fa fa-edit",
+          "target": "_self"
+        },
+        {
+          "title": "省市县区选择器",
+          "href": "page/area.html",
+          "icon": "fa fa-rocket",
+          "target": "_self"
+        }
+      ]
+    },
+    {
+      "title": "管理员模块",
+      "icon": "fa fa-slideshare",
+      "href": "page/framwork/welcome.html",
+      "target": "_self",
+      "child": [
+        {
+          "title": "首页",
+          "href": "page/framwork/welcome.html",
+          "icon": "fa fa-adn",
+          "target": "_self"
+        },
+        {
+          "title": "失效菜单",
+          "href": "page/error.html",
+          "icon": "fa fa-superpowers",
+          "target": "_self"
+        }
+      ]
+    }
+  ]
+}

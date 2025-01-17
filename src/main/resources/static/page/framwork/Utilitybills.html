@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>房屋费用查询</title>
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+    <style>
+        .layui-card {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .layui-card-header {
+            background-color: #0076ff;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+        }
+
+        .layui-card-body {
+            padding: 20px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+        }
+
+        .layui-card-body p {
+            margin-bottom: 12px;
+        }
+
+        .layui-card-body p strong {
+            color: #0076ff;
+        }
+
+        .layui-btn-normal {
+            background-color: #0076ff;
+            color: white;
+        }
+
+        .layui-btn-normal:hover {
+            background-color: #005bb5;
+        }
+
+        #resultContainer .layui-col-md4 {
+            padding: 15px;
+        }
+
+        .layui-select, .layui-input {
+            border-radius: 4px;
+        }
+
+        .layui-row {
+            margin-top: 20px;
+        }
+
+        .layui-container {
+            margin-top: 40px;
+        }
+
+        .layui-form-label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md4">
+            <!-- 年份选择框 -->
+            <label for="year">选择年份：</label>
+            <select id="year" class="layui-select">
+                <option value="">请选择年份</option>
+                <!-- 动态生成年份选项 -->
+            </select>
+        </div>
+
+        <div class="layui-col-md4">
+            <!-- 月份选择框 -->
+            <label for="month">选择月份：</label>
+            <select id="month" class="layui-select">
+                <option value="">请选择月份</option>
+                <option value="1">1月</option>
+                <option value="2">2月</option>
+                <option value="3">3月</option>
+                <option value="4">4月</option>
+                <option value="5">5月</option>
+                <option value="6">6月</option>
+                <option value="7">7月</option>
+                <option value="8">8月</option>
+                <option value="9">9月</option>
+                <option value="10">10月</option>
+                <option value="11">11月</option>
+                <option value="12">12月</option>
+            </select>
+        </div>
+
+        <div class="layui-col-md4">
+            <!-- 查询按钮 -->
+            <button class="layui-btn layui-btn-normal" id="queryButton">查询</button>
+        </div>
+    </div>
+
+    <!-- 查询结果 -->
+    <div id="resultContainer" class="layui-row" style="margin-top: 20px;"></div>
+</div>
+
+<script src="../../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+<script>
+    layui.use(['jquery', 'form'], function () {
+        var $ = layui.jquery;
+        var form = layui.form;
+
+        // 获取localStorage中的房间号
+        var rNo = localStorage.getItem('rNo');
+
+        // 获取当前年份并填充年份选择框
+        var currentYear = new Date().getFullYear();
+        for (var year = currentYear - 10; year <= currentYear; year++) {
+            $('#year').append(new Option(year, year));
+        }
+
+        // 重新渲染表单组件
+        form.render('select');
+
+        // 监听查询按钮点击事件
+        $('#queryButton').click(function () {
+            var year = $('#year').val();  // 获取用户选择的年份
+            var month = $('#month').val();  // 获取用户选择的月份
+
+            // 判断年份和月份是否为空
+            if (!year) {
+                layer.msg("请选择年份");
+                return;
+            }
+            if (!month) {
+                layer.msg("请选择月份");
+                return;
+            }
+
+            // 发送请求获取房屋费用数据
+            $.ajax({
+                url: '/api/consume',  // 后端接口地址
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    rNo: rNo,
+                    year: year,
+                    month: month
+                }),
+                success: function (response) {
+                    if (response.success) {
+                        // 请求成功，显示数据
+                        var data = response.data;
+
+                        // 清空上一次的查询结果
+                        $('#resultContainer').empty();
+
+                        // 生成显示的卡片
+                        var cardHtml = `
+                            <div class="layui-col-md4">
+                                <div class="layui-card">
+                                    <div class="layui-card-header">水电费用详情</div>
+                                    <div class="layui-card-body">
+                                        <p><strong>冷水费：</strong>￥${data.ccsum}</p>
+                                        <p><strong>热水费：</strong>￥${data.chsum}</p>
+                                        <p><strong>电费：</strong>￥${data.celec}</p>
+                                        <p><strong>总水电费：</strong>￥${data.csumwe}</p>
+                                        <p><strong>冷水单价：</strong>￥${data.ccwater}</p>
+                                        <p><strong>热水单价：</strong>￥${data.chcw}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+
+                        // 将卡片加入到页面
+                        $('#resultContainer').append(cardHtml);
+                    } else {
+                        $('#resultContainer').empty();
+                        // 请求失败，显示错误信息
+                        layer.msg(response.message);
+                    }
+                },
+                error: function () {
+                    layer.msg("请求失败，请稍后重试！");
+                }
+            });
+        });
+    });
+</script>
+
+</body>
+</html>

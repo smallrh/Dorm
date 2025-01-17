@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>住宿申请表</title>
+    <link rel="stylesheet" href="../../lib/layui-v2.6.3/css/layui.css" media="all">
+</head>
+<body>
+
+<div class="layui-container">
+    <div class="layui-row">
+        <div class="layui-col-md6 layui-col-md-offset3">
+            <form class="layui-form" id="accommodationForm">
+                <input type="hidden" name="s_no" id="s_no" value=""> <!-- 隐藏学号字段 -->
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">房间号</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="r_no" required lay-verify="required" placeholder="请输入房间号"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请日期</label>
+                    <div class="layui-input-block">
+                        <input type="date" name="ac_date" required lay-verify="required" class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">申请原因</label>
+                    <div class="layui-input-block">
+                        <textarea name="ac_reason" required lay-verify="required" placeholder="请输入申请原因"
+                                  class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">联系电话</label>
+                    <div class="layui-input-block">
+                        <input type="text" name="ac_tel" required lay-verify="required" placeholder="请输入联系电话"
+                               class="layui-input">
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <label class="layui-form-label">备注</label>
+                    <div class="layui-input-block">
+                        <textarea name="ac_note" placeholder="请输入备注" class="layui-textarea"></textarea>
+                    </div>
+                </div>
+
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" lay-submit lay-filter="submitForm">提交申请</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="../../lib/jquery-3.4.1/jquery-3.4.1.min.js" charset="utf-8"></script>
+<script src="../../lib/layui-v2.6.3/layui.js" charset="utf-8"></script>
+<script src="../../js/lay-config.js?v=1.0.4" charset="utf-8"></script>
+
+<script>
+    layui.use(['form', 'jquery', 'miniTab'], function () {
+        var $ = layui.jquery,
+            form = layui.form,
+            miniTab = layui.miniTab;
+
+        // 将localStorage中的sNo赋值给隐藏的input
+        var sNo = localStorage.getItem('sNo'); // 假设sNo存储在localStorage中
+        $('#s_no').val(sNo);
+
+        // 提交表单时
+        form.on('submit(submitForm)', function (data) {
+            var formData = data.field;
+            // 在这里你可以将表单数据发送到后端
+            $.ajax({
+                url: '/api/accommodation',  // 后端接口
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json',
+                success: function (response) {
+                    if (response.success) {
+                        layer.msg('申请提交成功');
+                        // 延迟关闭当前页面，避免闪烁
+                        setTimeout(function () {
+                            // 如果你使用的是miniTab的标签页管理，关闭当前标签页
+                            miniTab.deleteCurrentByIframe();
+
+                            // 如果你只是想关闭当前页面（非标签页），可以用下面的代码
+                            // window.close();
+                        }, 1000);  // 1秒后关闭页面
+                    } else {
+                        layer.msg('提交失败：' + response.message);
+                    }
+                },
+                error: function (error) {
+                    layer.msg('请求失败，请稍后重试');
+                }
+            });
+            return false; // 阻止表单默认提交
+        });
+    });
+</script>
+
+</body>
+</html>
